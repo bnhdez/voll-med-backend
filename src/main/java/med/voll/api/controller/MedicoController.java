@@ -42,9 +42,9 @@ public class MedicoController {
     }
 
     @GetMapping
-    public Page<DatosListadoMedico> listadoMedicos(@PageableDefault(size = 2) Pageable paginacion){
+    public ResponseEntity<Page<DatosListadoMedico>> listadoMedicos(@PageableDefault(size = 2) Pageable paginacion){
 //        return medicoRepository.findAll(paginacion).map(DatosListadoMedico::new);
-        return medicoRepository.findByActivoTrue(paginacion).map(DatosListadoMedico::new);
+        return ResponseEntity.ok(medicoRepository.findByActivoTrue(paginacion).map(DatosListadoMedico::new));
     }
 
     @PutMapping
@@ -74,5 +74,17 @@ public class MedicoController {
 //        Medico medico = medicoRepository.getReferenceById(id);
 //        medicoRepository.delete(medico);
 //    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DatosRespuestaMedico> retornaDatosMedico(@PathVariable Long id){
+        Medico medico = medicoRepository.getReferenceById(id);
+        var datosMedico = new DatosRespuestaMedico(medico.getId(), medico.getNombre(), medico.getEmail(), medico.getTelefono(),
+                medico.getDocumento(), new DatosDireccion(medico.getDireccion().getCalle(),
+                medico.getDireccion().getDistrito(),
+                medico.getDireccion().getCiudad(),
+                medico.getDireccion().getNumero(),
+                medico.getDireccion().getComplemento()));
+        return ResponseEntity.ok(datosMedico);
+    }
 
 }
