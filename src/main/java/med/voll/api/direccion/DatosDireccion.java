@@ -6,13 +6,13 @@ import jakarta.validation.constraints.NotNull;
 public record DatosDireccion(
         @NotBlank
         String calle,
-        @NotNull
-        Integer numero,
-        @NotBlank
-        String complemento,
         @NotBlank
         String distrito,
         @NotBlank
-        String ciudad
+        String ciudad,
+        @NotNull
+        Integer numero,
+        @NotBlank
+        String complemento
 ) {
 }
