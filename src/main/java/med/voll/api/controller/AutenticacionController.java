@@ -20,17 +20,25 @@ import org.springframework.web.bind.annotation.RestController;
 public class AutenticacionController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager; // Encargado de autenticar las credenciales de usuario
 
     @Autowired
-    private TokenService tokenService;
+    private TokenService tokenService; // Servicio encargado de la generación de JWT
 
+    // Endpoint para la autenticación de usuarios y generación de JWT
     @PostMapping
     public ResponseEntity autenticarUsuario(@RequestBody @Valid DatosAutenticacionUsuario datosAutenticacionUsuario){
+        // Creamos un objeto de autenticación con las credenciales enviadas por el usuario
         Authentication authToken = new UsernamePasswordAuthenticationToken(datosAutenticacionUsuario.login(),
                 datosAutenticacionUsuario.clave());
+
+        // Autenticamos al usuario
         var usuarioAutenticado = authenticationManager.authenticate(authToken);
+
+        // Generamos el JWT para el usuario autenticado
         var JWTtoken = tokenService.generarToken((Usuario) usuarioAutenticado.getPrincipal());
+
+        // Devolvemos el token en la respuesta
         return ResponseEntity.ok(new DatosJWTToken(JWTtoken));
     }
 

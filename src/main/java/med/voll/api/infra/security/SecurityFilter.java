@@ -17,39 +17,40 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     @Autowired
-    private TokenService tokenService;
+    private TokenService tokenService; // Inyectamos el servicio que maneja la validación y generación de tokens
 
     @Autowired
-    public SecurityFilter(TokenService tokenService) {
-        this.tokenService = tokenService;
-    }
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioRepository usuarioRepository; // Repositorio para buscar el usuario por su login
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        //Obtener header
+        // Obtenemos el header Authorization que contiene el token
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null) {
-            //obtener token del heaer
+            // Eliminamos el prefijo "Bearer " para obtener solo el token
             String token = authHeader.replace("Bearer ", "");
+
+            // Validamos el token y obtenemos el username asociado
             String username = tokenService.validarToken(token);
 
             if (username != null) {
-                // Token valido
+                // Si el token es válido, obtenemos el usuario desde la base de datos
                 var userDetails = usuarioRepository.findByLogin(username);
+
+                // Creamos un objeto de autenticación con el usuario autenticado
                 var authentication = new UsernamePasswordAuthenticationToken(
                         userDetails,
-                        null,
-                        userDetails.getAuthorities()
+                        null, // No necesitamos la contraseña aquí
+                        userDetails.getAuthorities() // Establecemos las autoridades del usuario
                 );
+
+                // Establecemos la autenticación en el contexto de seguridad para que esté disponible durante el ciclo de vida de la petición
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
+        // Continuamos con la cadena de filtros
         filterChain.doFilter(request, response);
     }
 }
