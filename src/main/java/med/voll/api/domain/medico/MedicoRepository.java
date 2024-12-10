@@ -10,20 +10,20 @@ import java.time.LocalDateTime;
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
     Page<Medico> findByActivoTrue(Pageable paginacion);
 
-    @Query(value = """
+    @Query("""
         select m from Medico m
         where
-        m.activo = 1
+        m.activo = TRUE
         and
         m.especialidad = :especialidad
         and m.id not in (
-            select c.medico_id from consultas c
+            select c.medico.id from Consulta c
             where
             c.fecha = :fecha
         )
         order by rand()
         limit 1
-        """, nativeQuery = true)
+        """)
     Medico elegirMedicoAleatorioDisponibleEnLaFecha(Especialidad especialidad, LocalDateTime fecha);
 
     @Query("""
