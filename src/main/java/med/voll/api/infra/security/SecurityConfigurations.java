@@ -23,7 +23,8 @@ public class SecurityConfigurations {
         return http.csrf(csrf -> csrf.disable()) // Deshabilitamos CSRF, ya que estamos usando JWT
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Configuramos la política de sesiones para que no se guarde el estado (stateless)
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers(HttpMethod.POST, "/login").permitAll(); // Permitir acceso sin autenticación al endpoint de login
+                    req.requestMatchers(HttpMethod.POST, "/login").permitAll()
+                            .requestMatchers("/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll(); // Permitir acceso sin autenticación al endpoint de login y documentacion de API
                     req.anyRequest().authenticated(); // Todos los demás endpoints requieren autenticación
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class) // Añadimos el filtro de seguridad antes de UsernamePasswordAuthenticationFilter
